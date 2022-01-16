@@ -1,21 +1,6 @@
-<style>
-	.button{
-		display: block;
-		width: 80%;
-		margin: 0 auto;
-		margin-top: 10px;
-		border-radius: 10px;
-		height: 35px;
-		border: none;
-		cursor: pointer;
-	}
-</style>
-<form action="#" method="post">
-	<button class="button" type="submit" name="log_off">Выйти</button>
-</form>
-</br>
+
 <?php
-$info = json_decode(file_get_contents('array.json'), true);
+	$info = json_decode(file_get_contents('array.json'), true);
 ?>
 <table border="1" style="border-collapse: collapse; border: 1px solid black;">
     <thead>

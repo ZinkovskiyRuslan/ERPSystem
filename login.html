@@ -1,72 +1,102 @@
-<style>
-	.form_auth_block{
-		width: 500px;
-		height: 500px;
-		margin: 0 auto;
-		background: url(SilosLogin.jpg);
-		background-size: cover;
-		border-radius: 4px;
-	}
-	.form_auth_block_content{
-	  padding-top: 15%;
-	}
-	.form_auth_block_head_text{
-		display: block;
-		text-align: center;
-		padding: 10px;
-		font-size: 20px;
-		font-weight: 600;
-		background: #ffffff;
-		opacity: 0.7;
-	}
-	.form_auth_block label{
-		display: block;
-		text-align: center;
-		padding: 10px;
-		background: #ffffff;
-		opacity: 0.7;
-		font-weight: 600;
-		margin-bottom: 10px;
-		margin-top: 10px;
-	}
-	.form_auth_block input{
-	  display: block;
-	  margin: 0 auto;
-	  width: 80%;
-	  height: 45px;
-	  border-radius: 10px;  
-	  border:none;
-	  outline: none;
-	}
-	input:focus {
-	  color: #000000;
-	  border-radius: 10px;
-	  border: 2px solid #436fea;
-	}
-	.form_auth_button{
-		display: block;
-		width: 80%;
-		margin: 0 auto;
-		margin-top: 10px;
-		border-radius: 10px;
-		height: 35px;
-		border: none;
-		cursor: pointer;
-	}
-	::-webkit-input-placeholder {color:#3f3f44; padding-left: 10px;} // Это стили для placeholder
-	::-moz-placeholder          {color:#3f3f44; padding-left: 10px;} // Это стили для placeholder
-	:-moz-placeholder           {color:#3f3f44; padding-left: 10px;} // Это стили для placeholder
-	:-ms-input-placeholder      {color:#3f3f44; padding-left: 10px;} // Это стили для placeholder
-</style>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Авторизация</title>
+		<!-- import CSS -->
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	</head>
 
-<div class="form_auth_block">
-  <div class="form_auth_block_content">
-    <p class="form_auth_block_head_text">Авторизация</p>
-    <form class="form_auth_style" action="#" method="post">
-      <input type="text" name="login" placeholder="Введите логин" required >
-	  </br>
-      <input type="password" name="password" placeholder="Введите пароль" required >
-      <button class="form_auth_button" type="submit" name="log_in">Войти</button>
-    </form>
-  </div>
-</div>
+	<!-- import Vue before Element -->
+	<script src="https://unpkg.com/vue/dist/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+	<link rel="stylesheet" href="css/login.css">
+
+	<body style = "background: url(SilosLogin.jpg) no-repeat center center fixed; background-size: cover;" >
+		<style>
+
+		</style>
+		<div id="app">
+			<el-form ref="form" :model="form" label-position="top">
+				<div class="form_auth_block">
+					<div class="form_auth_block_content">
+						<div class="form_auth_style">
+							<p class="form_auth_block_head_text">Авторизация</p>
+							<el-form-item 
+								prop="login"
+								:rules="[{ required: true, message: 'Обязательно для заполнения' }]">
+								<el-input v-model="form.login" placeholder="Введите логин"> </el-input>
+							</el-form-item>
+							<el-form-item 
+								prop="login"
+								:rules="[{ required: true, message: 'Обязательно для заполнения' }]">
+								<el-input v-model="form.password" type="password" placeholder="Введите пароль"> </el-input>
+							</el-form-item>
+							<el-button class="form_auth_button" type="primary" @click="doLogin">Войти</el-button>
+						</div>
+					</div>
+				</div>
+			</el-form>
+		</div>
+	</body>
+  <script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			form : {
+				login: null,
+				password : "",
+			},
+		},
+		methods: {
+			doLogin() {
+				var self = this;
+				let notvalid = false;
+
+				this.$refs.form.validate((valid) => {
+					if (valid) {
+						return true;
+					}
+					notvalid = true;
+					return false;
+				});
+
+				if (notvalid) {
+					this.$message({
+						type: 'error',
+						message: 'Не все обязательные поля заполнены!',
+					});
+					this.isSavingDialog = false;
+					return false;
+				}
+
+				$.ajax({
+					url: "api/account/login.php",
+					data: {login: self.form.login, password: self.form.password},
+					method: "post"
+				}).done(function (data) {
+					var json = $.parseJSON(data);
+					console.log(json.id);
+					if(json.id > 0)
+					{
+						window.location.href = "index.php"
+					}else{
+						self.$message({
+							type: 'error',
+							message: 'Неправильное сочетание логина и пароля!',
+						});
+					}
+				}).fail(function () {
+					self.$message({
+						type: 'warning',
+						message: 'Ошибка авторизации'
+					});
+				});
+			}
+		}
+	})
+  </script>
+</html>
