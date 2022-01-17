@@ -1,31 +1,7 @@
 <?php
-	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-	$db = new mysqli("localhost", "046531842_ruslan", "+M4FVuUsS7RN", "9271031610_ruslan");
-	$db->set_charset("utf8");
-	
-	foreach($importDbActions as $importDbAction)
-	{
-		switch ($importDbAction) {
-			case "login":
-				include_once('dbActions/login.php');
-				break;
-			case "getFuelInfo":
-				include_once("dbActions/getFuelInfo.php");
-				break;
-			case "setFuelInfo":
-				include_once("dbActions/setFuelInfo.php");
-				break;
-			case "getFuelInformations":
-				include_once("dbActions/getFuelInformations.php");
-				break;
-			default:
-				echo "</br>Unsupported method: " . $importDbAction;
-		}
-	}
-	
 	function execSQL($sql, $params, $close){
-           $mysqli = new mysqli("localhost", "046531842_ruslan", "+M4FVuUsS7RN", "9271031610_ruslan");
-           
+           $mysqli = new mysqli("", "", "", "");
+           $mysqli->set_charset("utf8");
            $stmt = $mysqli->prepare($sql) or die ("Failed to prepared the statement!");
           
            call_user_func_array(array($stmt, 'bind_param'), refValues($params));
@@ -71,4 +47,17 @@
         }*/
         return $arr;
     }
+
+	function ok($result){
+		http_response_code(200);
+		echo json_encode($result);
+	}
+	
+	function jsonExecSQL($sql, $params, $close){
+		ok(execSQL($sql, $params, $close));
+	}
+	
+	function jsonFirsrOrDefaultExecSQL($sql, $params, $close){
+		ok(execSQL($sql, $params, $close)[0]);
+	}
 ?>

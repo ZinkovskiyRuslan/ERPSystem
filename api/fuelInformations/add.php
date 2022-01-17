@@ -1,13 +1,7 @@
 <?php
-	include ('../../db.php');
-	$result = getSqlResult($db, $_POST["userId"], $_POST["carId"], $_POST["fuel"]);
-	http_response_code(200);
-	echo json_encode($result);
-	
-	function getSqlResult($db, $p1, $p2, $p3)
-	{
-		$stmt = $db->prepare
-		("
+	include_once ($_SERVER['DOCUMENT_ROOT'].'/db.php');
+	jsonExecSQL(
+		"
 			INSERT INTO 
 				`fuelinformations`
 				(
@@ -21,11 +15,8 @@
 				?,
 				?
 			);
-		");
-		$stmt->bind_param("iii", $p1, $p2, $p3);
-		if ($stmt->execute()){
-			return true;
-		}
-		return false;
-	}
+		",
+		array('iii', $_POST["userId"], $_POST["carId"], $_POST["fuel"]),
+		true
+	);
 ?>

@@ -1,16 +1,7 @@
 <?php
-	include ('../../db.php');
-	$result = getSqlResult($db);
-	http_response_code(200);
-	echo json_encode($result);
-
-	function getSqlResult($db)
-	{
-		$array = array();
-		$result = "";
-		//создание подготавливаемого запроса
-		$stmt = $db->prepare
-		("
+	include_once ($_SERVER['DOCUMENT_ROOT'].'/db.php');
+	jsonExecSQL(
+		"
 			SELECT
 					fi.Id,
 					fi.UserId,
@@ -18,10 +9,11 @@
 					u.FirstName,
 					u.MiddleName,
 					u.LastName,
+					CONCAT(u.LastName, ' ', u.FirstName, ' ', u.MiddleName) as FIO,
 					u.DeviceId,
 					c.Number,
 					fi.Fuel,
-					IFNULL(fi.FuelFill,0),
+					fi.FuelFill,
 					fi.Blocked,
 					fi.FuelFillDate
 			FROM
@@ -33,35 +25,8 @@
 			Order By
 					fi.Id Desc
 			LIMIT 100
-		");
-		
-		//выполнение запроса
-		$stmt->execute();
-
-		//связывание переменных с результатами запроса
-		$stmt->bind_result($res1, $res2, $res3, $res4, $res5, $res6, $res7, $res8, $res9, $res10, $res11, $res12);
-
-		while ($stmt->fetch()) {
-			array_push(
-						$array,
-						array(
-								"Id"			=>$res1,
-								"UserId"		=>$res2,
-								"CarId"			=>$res3,
-								"FIO"			=>$res6." ".$res4." ".$res5,
-								"FirstName"		=>$res4,
-								"MiddleName"	=>$res5,
-								"LastName"		=>$res6,
-								"DeviceId"		=>$res7,
-								"Number"		=>$res8,
-								"Fuel"			=>$res9,
-								"FuelFill"		=>$res10,
-								"Blocked"		=>$res11,
-								"FuelFillDate"	=>$res12
-							)
-						);
-		}
-
-		return $array;
-	}
+		",
+		array(), 
+		false
+	);
 ?>
