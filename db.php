@@ -2,7 +2,7 @@
 	function execSQL($sql, $params, $close){
            $mysqli = new mysqli("", "", "", "");
            $mysqli->set_charset("utf8");
-           $stmt = $mysqli->prepare($sql) or die ("Failed to prepared the statement!");
+           $stmt = $mysqli->prepare($sql) or array(false, null);
           
            call_user_func_array(array($stmt, 'bind_param'), refValues($params));
           
@@ -33,7 +33,7 @@
            $stmt->close();
            $mysqli->close();
           
-           return  $result;
+           return array(true, $result);
    }
   
     function refValues($arr){
@@ -53,11 +53,23 @@
 		echo json_encode($result);
 	}
 	
+	function error(){
+		http_response_code(500);
+	}
+	
 	function jsonExecSQL($sql, $params, $close){
-		ok(execSQL($sql, $params, $close));
+		$result = execSQL($sql, $params, $close);
+		if($result[0])
+			ok($result[1]);
+		else
+			error();
 	}
 	
 	function jsonFirsrOrDefaultExecSQL($sql, $params, $close){
-		ok(execSQL($sql, $params, $close)[0]);
+		$result = execSQL($sql, $params, $close);
+		if($result[0])
+			ok($result[1][0]);
+		else
+			error();
 	}
 ?>

@@ -1,6 +1,6 @@
 <div id="app">
 	<template>
-		<el-button type="text" @click="dialogVisible = true">
+		<el-button type="text" @click="dialogVisible = true;">
 			<i class="fa fa-plus" aria-hidden="true"></i>
 			Добавить новую запись
 		</el-button>
@@ -9,7 +9,7 @@
 			:visible.sync="dialogVisible"
 			width="30%"
 			:before-close="handleClose">
-				<el-form :model="form" ref="form">
+				<el-form :model="form" ref="form" v-loading="loadingDialog">
 					<el-form-item 
 						label="Водитель" 
 						:label-width="formLabelWidth"
@@ -50,7 +50,7 @@
 					</el-form-item>
 				</el-form>
 				<span slot="footer" class="dialog-footer">
-					<el-button @click="dialogVisible = false">Отмена</el-button>
+					<el-button @click="dialogVisible = false; setDefaultForm();">Отмена</el-button>
 					<el-button type="primary" @click="onApply">Сохранить</el-button>
 				</span>
 		</el-dialog>
@@ -63,7 +63,9 @@
 			<el-table-column
 				prop="Id"
 				label="№ п/п"
-				width="50">
+				width="50"
+				sortable
+				>
 			</el-table-column>
 			<el-table-column
 				prop="Id"
@@ -76,7 +78,7 @@
 						size="small">
 							<i class="fa fa-pencil" aria-hidden="true"></i>
 					</el-button>
-					<el-button
+					<el-button 
 						@click.native.prevent="deleteRow(scope.$index, tableData)"
 						type="text"
 						size="small">
@@ -139,6 +141,7 @@
 			formLabelWidth: '120px',
 			tableData: [{}],
 			loading: false,
+			loadingDialog: false,
 			form: {
 				id: null,
 				userId: null,
@@ -147,13 +150,20 @@
 			},
 			drivers: [],
 			cars: [],
+			defaultForm: null,
 		},
 		created(){
+			this.defaultForm = Object.assign({}, this.form);
 			this.getfuelinformations();
 		},
 		methods: {
+			setDefaultForm()
+			{
+				this.form = Object.assign({}, this.defaultForm);
+			},
 			getfuelinformations(){
 				let self = this;
+				self.loading = true;
 				$.ajax({
 						url: "api/fuelInformations/get.php",
 						data: null,
@@ -246,17 +256,21 @@
 						{confirmButtonText: 'Да',cancelButtonText: 'Нет',type: 'warning',}
 					)
 				.then(_ => {
+					this.$refs.form.resetFields();
+					this.setDefaultForm();
 					done();
 				})
 				.catch(_ => {});
 			},
 			onApply(){
+				this.loadingDialog = true;
 				if (this.form.id === null)
 				{
 					this.onAdd();
 				}else{
 					this.onUpdate();
 				}
+				this.loadingDialog  = false;
 			},
 			onAdd(){
 				let isValid = 0;
@@ -305,7 +319,7 @@
 							method: "post"
 						}).done(function (data) {
 							var json = $.parseJSON(data);
-							if(json == true)
+							if(json >= 0)
 							{
 								self.$message({
 									type: 'succes',
