@@ -160,6 +160,7 @@
 			setDefaultForm()
 			{
 				this.form = Object.assign({}, this.defaultForm);
+				this.$refs.form.resetFields();
 			},
 			getfuelinformations(){
 				let self = this;
