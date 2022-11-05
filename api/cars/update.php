@@ -4,13 +4,13 @@
 		array('manager'),
 		"
 			UPDATE
-					`fuelinformations`
+					`cars`
 			SET
-					`Removed` = '1'
+					`Number` = ?
 			WHERE 
-					`fuelinformations`.`Id` = ?
+					`cars`.`Id` = ?
 		",
-		array('i', $_POST["id"]),
+		array('si', $_POST["number"], $_POST["id"]), 
 		true
 	);
 ?>

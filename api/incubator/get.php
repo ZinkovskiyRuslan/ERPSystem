@@ -1,15 +1,19 @@
 <?php session_start();
 	include_once ($_SERVER['DOCUMENT_ROOT'].'/db.php');
 	jsonExecSQL(
-		array('manager'),
+		array('admin'),
 		"
 			SELECT
-					c.Id		as value,
-					c.Number	as label
+					i.Id,
+					i.Sensor,
+					i.ValueCurrent,
+					i.ValueTo,
+					i.SetDate,
+					i.UpdateDate
 			FROM
-					`cars` c
+					`incubator` i
 			Order By
-					c.Number Desc
+					i.Id
 		",
 		array(), 
 		false

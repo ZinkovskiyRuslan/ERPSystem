@@ -1,4 +1,3 @@
-
 <?php
 	$info = json_decode(file_get_contents('array.json'), true);
 ?>
