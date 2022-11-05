@@ -1,7 +1,7 @@
 <?	session_start();
 	include_once ($_SERVER['DOCUMENT_ROOT'].'/db.php');
 	$result = ExecSQL(
-		array('anonymous'),
+		array('admin'),
 		"
 			SELECT 
 					u.Id			as id,
@@ -19,11 +19,10 @@
 					u.RoleId	= r.Id
 			LIMIT 1
 		",
-		array('s', $_POST["login"]),
+		array('s', $_POST["userName"]),
 		false
 	);
-	
-	if(count($result[1]) == 1 && password_verify($_POST["password"], $result[1][0]['password']))
+	if(count($result[1]) == 1);
 	{
 		if($result[1][0]['id'])
 		{

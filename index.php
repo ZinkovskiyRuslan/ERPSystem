@@ -1,10 +1,10 @@
-<?php session_start(); error_reporting( E_ERROR );
+<?php session_start();
 	
-	if(isset($_POST['log_off'])) 
+	if(isset($_POST['logOff'])) 
 	{
-		unset ($_SESSION['roleId']);
+		unset ($_SESSION['role']);
 	}
-	if(!isset($_SESSION['roleId']))
+	if(!isset($_SESSION['role']))
 	{
 		header('Location: login.html');
 	}else{

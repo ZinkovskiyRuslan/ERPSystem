@@ -1,14 +1,14 @@
 <?php session_start();
 	include_once ($_SERVER['DOCUMENT_ROOT'].'/db.php');
 	jsonExecSQL(
-		array('manager'),
+		array('admin'),
 		"
 			UPDATE
-					`fuelinformations`
+					`cars`
 			SET
 					`Removed` = '1'
 			WHERE 
-					`fuelinformations`.`Id` = ?
+					`cars`.`Id` = ?
 		",
 		array('i', $_POST["id"]),
 		true

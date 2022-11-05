@@ -1,24 +1,39 @@
 <?php
-	include_once ($_SERVER['DOCUMENT_ROOT'].'/db.php');
+	//Example request http://erpelement.ru/api/system/getFuelInfo.php?systemId=0&id=Start"
+	
+	include_once($_SERVER['DOCUMENT_ROOT'].'/db.php');
+	$zeroHour = mktime(18, 0, 0, date("m"), date("d"), date("Y"));
+	if($zeroHour - time() < 0)
+	{
+		$zeroHour = mktime(18, 0, 0, date("m"), date("d") + 1, date("Y"));
+	}
+	echo($zeroHour - time() .";");	
+	
 	$result = execSQL(
+		array('anonymous'),
 		"
 			SELECT 
-			GROUP_CONCAT(CONCAT(`DeviceId`, '|', `Fuel` - `FuelFill`) ORDER BY fi.`Id` Desc SEPARATOR ';') as result
+			GROUP_CONCAT(CONCAT(d.`Device`, '|', `Fuel` - `FuelFill`) ORDER BY fi.`Id` Desc SEPARATOR ';') as result
 			FROM
 					`fuelinformations` fi,
-					`users` u
+					`users` u,
+					`devices` d
 			 WHERE
-					fi.Removed = 0		AND
-					fi.Blocked = 0		AND
-					fi.UserId = u.Id	AND
-					fi.Fuel > IFNULL(fi.FuelFill,0) 
+					fi.Removed	= 0		AND
+					fi.Closed	= 0		AND
+					fi.UserId	= u.Id	AND
+					fi.Fuel 	> IFNULL(fi.FuelFill,0) and 
+					u.DeviceId = d.Id
 		",
-		array(), 
+		array(),
 		false
 	);
-	echo($result[1][0]["result"]);
+	echo($result[1][0]["result"].";");
+		echo("1");
 	
+	//Ищем подключившееся устройство в бд
 	$resultId = execSQL(
+		array('anonymous'),
 		"
 			SELECT 
 					d.`Id` 
@@ -32,9 +47,11 @@
 		false
 	);
 	
-	if(!isset($resultId[1][0]['Id']))
+	//Добавить устройство в список если оно новое
+	if(!isset($resultId[1][0]['Id']) && isset($_GET['id']))
 	{
 		execSQL(
+			array('anonymous'),
 			"
 				INSERT INTO `devices` 
 						(`Device`) 
@@ -46,39 +63,18 @@
 		);
 	}
 	
-	/*
-	$importDbActions = array("getFuelInfo");
-	include_once('../../db.php');
-	echo(getFuelInfo($db));
-	
-	function getFuelInfo($db)
-	{
-		$result = "";
-
-		//создание подготавливаемого запроса
-		$stmt = $db->prepare
-		("
-			SELECT
-					u.DeviceId,
-					fi.Fuel - IFNULL(fi.FuelFill,0)
-			  FROM
-					`fuelinformations` fi,
-					`users` u
+	//Блокируем изменение записи т.к. данные ушли в АЗС
+	execSQL(
+		array('anonymous'),
+		"
+			UPDATE 
+					`fuelinformations` 
+			   SET
+					Blocked = 1
 			 WHERE
-					fi.UserId = u.Id	AND
-					fi.Fuel > IFNULL(fi.FuelFill,0) 
-		");
-
-		//выполнение запроса
-		$stmt->execute();
-
-		//связывание переменных с результатами запроса
-		$stmt->bind_result($res1, $res2);
-		while ($stmt->fetch()) {
-			$result = $result . $res1 . "|" . $res2 . ";";
-		}
-
-		return $result;
-	}
-	*/
+					Blocked = 0
+		",
+		array(),
+		false
+	);
 ?>
